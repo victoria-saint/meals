@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guide Nutrition · Cycle-Synced</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --menstrual: #B85C6E;
+    --menstrual-bg: #FDF0F2;
+    --follicular: #3A8A5A;
+    --follicular-bg: #EFF7F2;
+    --ovulation: #C48A1A;
+    --ovulation-bg: #FDF6E3;
+    --luteal: #6050A0;
+    --luteal-bg: #F2F0FB;
+    --bg: #FAF9F7;
+    --surface: #FFFFFF;
+    --surface2: #F4F3F0;
+    --border: #E4E2DC;
+    --text: #1A1816;
+    --muted: #7A7870;
+    --protein: #D4683A;
+    --carb: #3A8EC8;
+    --fat: #4A9A4A;
+  }
+
+  body.dark {
+    --menstrual-bg: #2A1218;
+    --follicular-bg: #0E2018;
+    --ovulation-bg: #221800;
+    --luteal-bg: #130E22;
+    --bg: #0D0D0F;
+    --surface: #16161A;
+    --surface2: #1E1E24;
+    --border: #2A2A32;
+    --text: #F0EEE8;
+    --muted: #888880;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family:'Outfit', sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    padding-bottom:5rem;
+    overflow-x:hidden;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* TOOLBAR */
+  .toolbar {
+    position:fixed; top:0.8rem; right:0.8rem;
+    display:flex; gap:0.4rem; z-index:999;
+  }
+  .tb-btn {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:8px; width:34px; height:34px;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:0.85rem;
+    transition:all 0.2s;
+    box-shadow:0 2px 8px rgba(0,0,0,0.08);
+    color:var(--text);
+  }
+  .tb-btn:hover { background:var(--surface2); transform:scale(1.05); }
+
+  /* HERO */
+  .hero {
+    padding:3rem 1.2rem 1.5rem;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero::before {
+    content:'';
+    position:absolute; top:-80px; left:50%;
+    transform:translateX(-50%);
+    width:500px; height:280px;
+    background:radial-gradient(ellipse, rgba(184,92,110,0.07) 0%, rgba(58,142,200,0.05) 50%, transparent 70%);
+    pointer-events:none;
+  }
+  .version-tag {
+    display:inline-block;
+    font-size:0.58rem; font-weight:600; letter-spacing:0.22em;
+    text-transform:uppercase; color:var(--protein);
+    border:1px solid rgba(212,104,58,0.3);
+    border-radius:100px; padding:0.28rem 0.8rem; margin-bottom:1rem;
+  }
+  .hero h1 {
+    font-family:'Cormorant Garamond', serif;
+    font-size:clamp(1.8rem, 5vw, 2.8rem);
+    font-weight:700; line-height:1.15; margin-bottom:0.4rem;
+  }
+  .hero h1 em { font-style:italic; color:var(--protein); }
+  .hero p { color:var(--muted); font-size:0.75rem; font-weight:300; }
+
+  /* MACRO BANNER */
+  .macro-banner {
+    display:grid; grid-template-columns:repeat(3,1fr);
+    margin:0 0.8rem 2rem; gap:0.5rem;
+  }
+  .macro-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:10px; padding:0.8rem 0.6rem;
+    text-align:center;
+  }
+  .macro-card .macro-icon { font-size:1.2rem; margin-bottom:0.3rem; }
+  .macro-card .macro-name {
+    font-size:0.58rem; font-weight:600; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--muted); margin-bottom:0.2rem;
+  }
+  .macro-card .macro-val {
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.1rem; font-weight:700;
+  }
+  .macro-card .macro-note { font-size:0.6rem; color:var(--muted); margin-top:0.15rem; }
+  .m-protein .macro-val { color:var(--protein); }
+  .m-carb .macro-val { color:var(--carb); }
+  .m-fat .macro-val { color:var(--fat); }
+
+  /* PHASE TABS */
+  .tabs {
+    display:flex; gap:0.4rem;
+    padding:0 0.8rem 1.2rem;
+    overflow-x:auto; scrollbar-width:none;
+  }
+  .tabs::-webkit-scrollbar { display:none; }
+  .tab {
+    flex-shrink:0;
+    padding:0.5rem 0.9rem;
+    border-radius:100px;
+    font-size:0.68rem; font-weight:500;
+    border:1px solid var(--border);
+    background:var(--surface);
+    cursor:pointer; color:var(--muted);
+    transition:all 0.2s;
+    white-space:nowrap;
+  }
+  .tab.active { color:white; border-color:transparent; }
+  .tab-m.active { background:var(--menstrual); }
+  .tab-f.active { background:var(--follicular); }
+  .tab-o.active { background:var(--ovulation); }
+  .tab-l.active { background:var(--luteal); }
+
+  /* PHASE CONTENT */
+  .phase-content { display:none; padding:0 0.8rem; }
+  .phase-content.active { display:block; animation:fadeUp 0.3s ease; }
+
+  .phase-header {
+    border-radius:12px; padding:1rem 1.1rem;
+    margin-bottom:1rem;
+  }
+  .ph-m { background:var(--menstrual-bg); border:1px solid rgba(184,92,110,0.2); }
+  .ph-f { background:var(--follicular-bg); border:1px solid rgba(58,138,90,0.2); }
+  .ph-o { background:var(--ovulation-bg); border:1px solid rgba(196,138,26,0.2); }
+  .ph-l { background:var(--luteal-bg); border:1px solid rgba(96,80,160,0.2); }
+
+  .phase-header h2 {
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.2rem; font-weight:700; margin-bottom:0.3rem;
+  }
+  .ph-m h2 { color:var(--menstrual); }
+  .ph-f h2 { color:var(--follicular); }
+  .ph-o h2 { color:var(--ovulation); }
+  .ph-l h2 { color:var(--luteal); }
+
+  .phase-header p { font-size:0.75rem; color:var(--muted); line-height:1.5; }
+
+  /* FOCUS NUTRIENTS */
+  .nutrients {
+    display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.7rem;
+  }
+  .nutrient-tag {
+    font-size:0.62rem; font-weight:500;
+    padding:0.22rem 0.6rem; border-radius:100px;
+    background:rgba(255,255,255,0.5); color:var(--text);
+    border:1px solid rgba(0,0,0,0.08);
+  }
+  body.dark .nutrient-tag { background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.1); }
+
+  /* SECTIONS */
+  .section-title {
+    font-size:0.6rem; font-weight:600; letter-spacing:0.18em;
+    text-transform:uppercase; color:var(--muted);
+    margin-bottom:0.7rem;
+    display:flex; align-items:center; gap:0.5rem;
+  }
+  .section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* MEAL CARDS */
+  .meals-grid { display:flex; flex-direction:column; gap:0.6rem; margin-bottom:1.5rem; }
+
+  .meal-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:10px; overflow:hidden;
+    transition:all 0.2s;
+  }
+  .meal-card:hover { box-shadow:0 3px 12px rgba(0,0,0,0.06); }
+
+  .meal-header {
+    display:flex; align-items:center; gap:0.7rem;
+    padding:0.75rem 0.9rem;
+    cursor:pointer;
+  }
+  .meal-time {
+    font-size:0.58rem; font-weight:600; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--muted);
+    min-width:52px;
+  }
+  .meal-name {
+    flex:1; font-size:0.82rem; font-weight:500;
+  }
+  .meal-badges { display:flex; gap:0.3rem; flex-wrap:wrap; }
+  .badge {
+    font-size:0.55rem; font-weight:600; letter-spacing:0.06em;
+    text-transform:uppercase; padding:0.15rem 0.45rem;
+    border-radius:4px;
+  }
+  .badge-fast { background:rgba(58,142,200,0.12); color:var(--carb); }
+  .badge-cheap { background:rgba(74,154,74,0.12); color:var(--fat); }
+  .badge-protein { background:rgba(212,104,58,0.12); color:var(--protein); }
+  .meal-arrow { color:var(--muted); font-size:0.7rem; transition:transform 0.2s; }
+  .meal-card.open .meal-arrow { transform:rotate(180deg); }
+
+  .meal-body {
+    display:none; padding:0 0.9rem 0.8rem;
+    border-top:1px solid var(--border);
+  }
+  .meal-card.open .meal-body { display:block; animation:fadeUp 0.2s ease; }
+
+  .ingredients {
+    list-style:none; margin:0.6rem 0;
+    display:flex; flex-direction:column; gap:0.3rem;
+  }
+  .ingredients li {
+    font-size:0.75rem; color:var(--text); line-height:1.4;
+    display:flex; gap:0.4rem;
+  }
+  .ingredients li::before { content:'·'; color:var(--muted); }
+
+  .prep-note {
+    font-size:0.7rem; color:var(--muted); font-style:italic;
+    background:var(--surface2); border-radius:6px;
+    padding:0.5rem 0.7rem; margin-top:0.5rem; line-height:1.5;
+  }
+
+  .macros-row {
+    display:flex; gap:0.5rem; margin-top:0.6rem;
+  }
+  .macro-chip {
+    font-size:0.62rem; font-weight:500;
+    padding:0.2rem 0.5rem; border-radius:5px;
+  }
+  .mc-p { background:rgba(212,104,58,0.1); color:var(--protein); }
+  .mc-c { background:rgba(58,142,200,0.1); color:var(--carb); }
+  .mc-f { background:rgba(74,154,74,0.1); color:var(--fat); }
+
+  /* FOODS TO PRIORITIZE */
+  .foods-grid {
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:0.5rem; margin-bottom:1.5rem;
+  }
+  .food-col {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:10px; padding:0.8rem;
+  }
+  .food-col h4 {
+    font-size:0.6rem; font-weight:600; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--muted); margin-bottom:0.5rem;
+  }
+  .food-list { list-style:none; display:flex; flex-direction:column; gap:0.3rem; }
+  .food-list li { font-size:0.73rem; color:var(--text); display:flex; gap:0.3rem; }
+  .food-list li::before { content:'✓'; color:var(--fat); font-size:0.65rem; }
+
+  /* TIPS */
+  .tip-card {
+    background:var(--surface2); border-radius:10px;
+    padding:0.8rem 0.9rem; margin-bottom:0.5rem;
+    display:flex; gap:0.7rem; align-items:flex-start;
+  }
+  .tip-icon { font-size:1rem; flex-shrink:0; }
+  .tip-text { font-size:0.75rem; line-height:1.55; color:var(--text); }
+  .tip-text strong { font-weight:600; }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(6px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <button class="tb-btn" id="themeBtn" onclick="toggleTheme()" title="Mode sombre">🌙</button>
+  <button class="tb-btn" id="fsBtn" onclick="toggleFullscreen()" title="Plein écran">⛶</button>
+</div>
+
+<div class="hero">
+  <div class="version-tag">Nutrition · Cycle-Synced</div>
+  <h1>Manger pour <em>performer</em><br>& construire</h1>
+  <p>Rapide · Budget maîtrisé · Adapté à ton cycle</p>
+</div>
+
+<!-- MACRO BANNER -->
+<div class="macro-banner">
+  <div class="macro-card m-protein">
+    <div class="macro-icon">🥩</div>
+    <div class="macro-name">Protéines</div>
+    <div class="macro-val">1.6–2g</div>
+    <div class="macro-note">/ kg / jour</div>
+  </div>
+  <div class="macro-card m-carb">
+    <div class="macro-icon">🍚</div>
+    <div class="macro-name">Glucides</div>
+    <div class="macro-val">+200 kcal</div>
+    <div class="macro-note">jours de force</div>
+  </div>
+  <div class="macro-card m-fat">
+    <div class="macro-icon">🥑</div>
+    <div class="macro-name">Lipides</div>
+    <div class="macro-val">0.8–1g</div>
+    <div class="macro-note">/ kg / jour</div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab tab-m active" onclick="switchTab('m')">🩸 Règles J1–J6</div>
+  <div class="tab tab-f" onclick="switchTab('f')">📈 Folliculaire J7–J13</div>
+  <div class="tab tab-o" onclick="switchTab('o')">☀️ Ovulation J14</div>
+  <div class="tab tab-l" onclick="switchTab('l')">🌸 Lutéale J15–J28</div>
+</div>
+
+<!-- ═══════════════════════════════ PHASE RÈGLES ═══════════════════════════════ -->
+<div class="phase-content active" id="phase-m">
+  <div class="phase-header ph-m">
+    <h2>🩸 Phase des règles</h2>
+    <p>Énergie basse, pertes en fer. L'objectif : nourrir le corps en douceur, compenser les pertes, éviter l'inflammation.</p>
+    <div class="nutrients">
+      <span class="nutrient-tag">🩸 Fer</span>
+      <span class="nutrient-tag">🍊 Vitamine C</span>
+      <span class="nutrient-tag">🧲 Magnésium</span>
+      <span class="nutrient-tag">🐟 Oméga-3</span>
+    </div>
+  </div>
+
+  <div class="section-title">Repas de la journée</div>
+  <div class="meals-grid">
+    <div class="meal-card" onclick="toggleMeal(this)">
+      <div class="meal-header">
+        <span class="meal-time">Matin</span>
+        <span class="meal-name">Porridge fer + protéines</span>
+        <div class="meal-badges"><span class="badge badge-fast">⚡ 5 min</span><span class="badge badge-cheap">💚 Éco</span></div>
+        <span class="meal-arrow">▼</span>
+      </div>
+      <div class="meal-body">
+        <ul class="ingredients">
+          <li>60g flocons d'avoine</li>
+          <li>200ml lait (vache ou végétal enrichi)</li>
+          <li>1 poignée d'épinards frais mixés dedans (goût neutre)</li>
+          <li>1 œuf poché ou 2 cs de beurre de cacahuète</li>
+          <li>Quelques raisins secs + jus de citron (vitamine C)</li>
+        </ul>
+        <div class="prep-note">⚡ Prépare la veille au soir dans un bocal (overnight oats). Le matin : 0 effort.</div>
+        <div class="macros-row">
+          <span class="macro-chip mc-p">~22g protéines</span>
+          <span class="macro-chip mc-c">~45g glucides</span>
+          <span class="macro-chip mc-f">~12g lipides</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="meal-card" onclick="toggleMeal(this)">
+      <div class="meal-header">
+        <span class="meal-time">Midi</span>
+        <span class="meal-name">Bowl lentilles + légumes rôtis</span>
+        <div class="meal-badges"><span class="badge badge-cheap">💚 Éco</span><span class="badge badge-protein">💪 Protéines</span></div>
+        <span class="meal-arrow">▼</span>
+      </div>
+      <div class="meal-body">
+        <ul class="ingredients">
+          <li>150g lentilles corail (en conserve = 2 min)</li>
+          <li>Légumes surgelés rôtis (courgette, poivron, oignon)</li>
+          <li>1 cs d'huile d'olive + curcuma + cumin</li>
+          <li>1 yaourt grec nature en sauce</li>
+          <li>Quelques feuilles d'épinards frais</li>
+        </ul>
+        <div class="prep-note">⚡ Lentilles en conserve + légumes surgelés = repas complet en 10 min. Fais-en pour 2 jours.</div>
+        <div class="macros-row">
+          <span class="macro-chip mc-p">~28g protéines</span>
+          <span class="macro-chip mc-c">~40g glucides</span>
+          <span class="macro-chip mc-f">~8g lipides</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="meal-card" onclick="toggleMeal(this)">
+      <div class="meal-header">
+        <span class="meal-time">Snack</span>
+        <span class="meal-name">Carré de chocolat noir + amandes</span>
+        <div class="meal-badges"><span class="badge badge-fast">⚡ 0 min</span><span class="badge badge-cheap">💚 Éco</span></div>
+        <span class="meal-arrow">▼</span>
+      </div>
+      <div class="meal-body">
+        <ul class="ingredients">
+          <li>2–3 carrés chocolat noir 70%+ (magnésium)</li>
+          <li>15–20 amandes (magnésium + lipides sains)</li>
+          <li>1 orange ou kiwi (vitamine C)</li>
+        </ul>
+        <div class="prep-note">💡 Le chocolat noir réduit les crampes grâce au magnésium. Pas un caprice — une nécessité.</div>
+        <div class="macros-row">
+          <span class="macro-chip mc-p">~6g protéines</span>
+          <span class="macro-chip mc-c">~20g glucides</span>
+          <span class="macro-chip mc-f">~14g lipides</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="meal-card" onclick="toggleMeal(this)">
+      <div class="meal-header">
+        <span class="meal-time">Soir</span>
+        <span class="meal-name">Saumon + patate douce</span>
+        <div class="meal-badges"><span class="badge badge-fast">⚡ 20 min</span><span class="badge badge-protein">💪 Protéines</span></div>
+        <span class="meal-arrow">▼</span>
+      </div>
+      <div class="meal-body">
+        <ul class="ingredients">
+          <li>150g saumon (frais ou surgelé)</li>
+          <li>1 patate douce moyenne (four ou micro-ondes 8 min)</li>
+          <li>Épinards sautés à l'ail</li>
+          <li>Filet de citron + herbes</li>
+        </ul>
+        <div class="prep-note">⚡ Saumon surgelé = 3× moins cher. Micro-ondes pour la patate douce = 8 min. Repas anti-inflammatoire parfait.</div>
+        <div class="macros-row">
+          <span class="macro-chip mc-p">~35g protéines</span>
+          <span class="macro-chip mc-c">~30g glucides</span>
+          <span class="macro-chip mc-f">~14g lipides</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Aliments à prioriser</div>
+  <div class="foods-grid">
+    <div class="food-col">
+      <h4>✅ Priorité</h4>
+      <ul class="food-list">
+        <li>Épinards, lentilles</li>
+        <li>Viande rouge (2×/sem)</li>
+        <li>Saumon, sardines</li>
+        <li>Chocolat noir 70%+</li>
+        <li>Amandes, graines</li>
+        <li>Patate douce</li>
+        <li>Agrumes (vit. C)</li>
+      </ul>
+    </div>
+    <div class="food-col">
+      <h4>⚠️ Réduire</h4>
+      <ul class="food-list">
+        <li>Café excessif</li>
+        <li>Alcool</li>
+        <li>Aliments ultra-transformés</li>
+        <li>Trop de sel</li>
+        <li>Produits laitiers si crampes</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ PHASE FOLLICULAIRE ═══════════════════════════════ -->
+<div class="phase-content" id="phase-f">
+  <div class="phase-header ph-f">
+    <h2>📈 Phase folliculaire</h2>
+    <p>C'est ta fenêtre de croissance musculaire. Énergie en hausse, récupération rapide. Mange pour performer et construire.</p>
+    <div class="nutrients">
+      <span class="nutrient-tag">💪 Protéines max</span>
+      <span class="nutrient-tag">🍚 Glucides pré-séance</span>
+      <span class="nutrient-tag">🫐 Antioxydants</span>
+      <span class="nutrient-tag">💧 Hydratation</span>
+    </div>
+  </div>
+
+  <div class="section-title">Repas de la journée</div>
+  <div class="meals-grid">
+    <div class="meal-card" onclick="toggleMeal(this)">
+      <div class="meal-header">
+        <span class="meal-time">Matin</span>
+        <span class="meal-name">Œufs + pain complet + fruit</span>
+        <div class="meal-badges"><span class="badge badge-fast">⚡ 8 min</span><span class="badge badge-protein">💪 Protéines</span></div>
+        <span class="meal-arrow">▼</span>
+      </div>
+      <div class="meal-body">
+        <ul class="ingredients">
+          <li>3 œufs brouillés ou en omelette</li>
+          <li>2 tranches pain complet</li>
+          <li>½ avocat ou fromage blanc</li>
+          <li>1 fruit (banane, pomme, fruits rouges)</li>
+        </ul>
+        <div class="prep-note">⚡ Les œufs sont la protéine la moins chère et la plus complète. 3 œufs = ~18g de protéines pour ~0.50€.</div>
+        <div class="macros-row">
+          <span class="macro-chip mc-p">~28g protéines</span>
+          <span class="macro-chip mc-c">~42g glucides</span>
+          <span class="macro-chip mc-f">~16g lipides</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="meal-card" onclick="toggleMeal(this)">
+      <div class="meal-header">
+        <span class="meal-time">Pré-séance</span>
+        <span class="meal-name">Banane + skyr / yaourt grec</span>
+        <div class="meal-badges"><span class="badge badge-fast">⚡ 0 min</span><span class="badge badge-cheap">💚 Éco</span></div>
+        <span class="meal-arrow">▼</span>
+      </div>
+      <div class="meal-body">
+        <ul class="ingredients">
+          <li>1 banane bien mûre (glucides rapides)</li>
+          <li>150g skyr ou yaourt grec (protéines)</li>
+          <li>1 cs miel optionnel</li>
+        </ul>
+        <div class="prep-note">⏰ À manger 30–45 min avant la séance. Énergie immédiate pour la performance.</div>
+        <div class="macros-row">
+          <span class="macro-chip mc-p">~15g protéines</span>
+          <span class="macro-chip mc-c">~35g glucides</span>
+          <span class="macro-chip mc-f">~2g lipides</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="meal-card" onclick="toggleMeal(this)">
+      <div class="meal-header">
+        <span class="meal-time">Post-séance</span>
+        <span class="meal-name">Riz + poulet + légumes</span>
+        <div class="meal-badges"><span class="badge badge-cheap">💚 Éco</span><span class="badge badge-protein">💪 Protéines</span></div>
+        <span class="meal-arrow">▼</span>
+      </div>
+      <div class="meal-body">
+        <ul class="ingredients">
+          <li>150g poulet grillé ou œufs durs</li>
+          <li>100g riz complet ou blanc cuit</li>
+          <li>Légumes variés (surgelés OK)</li>
+          <li>1 cs sauce soja ou vinaigrette légère</li>
+        </ul>
+        <div class="prep-note">⚡ Fenêtre anabolique : mange dans les 30–60 min après ta séance. C'est ici que la masse se construit.</div>
+        <div class="macros-row">
+          <span class="macro-chip mc-p">~38g protéines</span>
+          <span class="macro-chip mc-c">~55g glucides</span>
+          <span class="macro-chip mc-f">~6g lipides</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="meal-card" onclick="toggleMeal(this)">
+      <div class="meal-header">
+        <span class="meal-time">Soir</span>
+        <span class="meal-name">Soupe protéinée + fromage blanc</span>
+        <div class="meal-badges"><span class="badge badge-fast">⚡ 10 min</span><span class="badge badge-cheap">💚 Éco</span></div>
+        <span class="meal-arrow">▼</span>
+      </div>
+      <div class="meal-body">
+        <ul class="ingredients">
+          <li>Soupe maison ou brick (légumineuses si possible)</li>
+          <li>Œufs durs ou thon en conserve</li>
+          <li>200g fromage blanc 0% ou skyr</li>
+          <li>Quelques noix</li>
+        </ul>
+        <div class="prep-note">💡 Fromage blanc avant le coucher = caséine lente qui nourrit les muscles pendant la nuit.</div>
+        <div class="macros-row">
+          <span class="macro-chip mc-p">~32g protéines</span>
+          <span class="macro-chip mc-c">~25g glucides</span>
+          <span class="macro-chip mc-f">~10g lipides</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Aliments à prioriser</div>
+  <div class="foods-grid">
+    <div class="food-col">
+      <h4>✅ Priorité</h4>
+      <ul class="food-list">
+        <li>Poulet, œufs, thon</li>
+        <li>Riz, patate douce, avoine</li>
+        <li>Skyr, fromage blanc</li>
+        <li>Fruits rouges, banane</li>
+        <li>Légumineuses</li>
+        <li>Légumes variés</li>
+      </ul>
+    </div>
+    <div class="food-col">
+      <h4>⭐ Stratégie</h4>
+      <ul class="food-list">
+        <li>Glucides avant séance</li>
+        <li>Protéines après séance</li>
+        <li>+200 kcal jours de force</li>
+        <li>3–4L eau/jour</li>
+        <li>Batch cooking le dimanche</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ OVULATION ═══════════════════════════════ -->
+<div class="phase-content" id="phase-o">
+  <div class="phase-header ph-o">
+    <h2>☀️ Ovulation · J14</h2>
+    <p>Pic de performance. Énergie et endurance au maximum. Mange léger mais dense en nutriments pour soutenir l'effort maximal.</p>
+    <div class="nutrients">
+      <span class="nutrient-tag">💧 Hydratation ++</span>
+      <span class="nutrient-tag">🫐 Antioxydants</span>
+      <span class="nutrient-tag">💪 Protéines</span>
+      <span class="nutrient-tag">🥗 Anti-inflammatoire</span>
+    </div>
+  </div>
+
+  <div class="section-title">Repas de la journée</div>
+  <div class="meals-grid">
+    <div class="meal-card" onclick="toggleMeal(this)">
+      <div class="meal-header">
+        <span class="meal-time">Matin</span>
+        <span class="meal-name">Smoothie bowl protéiné</span>
+        <div class="meal-badges"><span class="badge badge-fast">⚡ 5 min</span><span class="badge badge-protein">💪 Protéines</span></div>
+        <span class="meal-arrow">▼</span>
+      </div>
+      <div class="meal-body">
+        <ul class="ingredients">
+          <li>150g skyr ou fromage blanc</li>
+          <li>1 banane congelée</li>
+          <li>Poignée de fruits rouges (frais ou surgelés)</li>
+          <li>1 cs graines de chia ou lin</li>
+          <li>Granola léger pour le croquant</li>
+        </ul>
+        <div class="prep-note">⚡ Mixe tout, verse dans un bol, ajoute le granola. 5 min chrono. Dense en nutriments.</div>
+        <div class="macros-row">
+          <span class="macro-chip mc-p">~22g protéines</span>
+          <span class="macro-chip mc-c">~40g glucides</span>
+          <span class="macro-chip mc-f">~6g lipides</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="meal-card" onclick="toggleMeal(this)">
+      <div class="meal-header">
+        <span class="meal-time">Midi</span>
+        <span class="meal-name">Salade complète anti-inflammatoire</span>
+        <div class="meal-badges"><span class="badge badge-fast">⚡ 10 min</span><span class="badge badge-cheap">💚 Éco</span></div>
+        <span class="meal-arrow">▼</span>
+      </div>
+      <div class="meal-body">
+        <ul class="ingredients">
+          <li>Légumes verts variés (épinards, roquette)</li>
+          <li>1 boîte thon ou 2 œufs durs</li>
+          <li>½ avocat</li>
+          <li>Tomates cerises, concombre</li>
+          <li>Vinaigrette citron + huile d'olive</li>
+        </ul>
+        <div class="prep-note">💡 Repas léger mais dense. Évite les repas lourds ce jour-là — tu performes mieux l'estomac dégagé.</div>
+        <div class="macros-row">
+          <span class="macro-chip mc-p">~30g protéines</span>
+          <span class="macro-chip mc-c">~15g glucides</span>
+          <span class="macro-chip mc-f">~18g lipides</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="meal-card" onclick="toggleMeal(this)">
+      <div class="meal-header">
+        <span class="meal-time">Post-séance</span>
+        <span class="meal-name">Riz + protéine + légumes colorés</span>
+        <div class="meal-badges"><span class="badge badge-protein">💪 Protéines</span><span class="badge badge-cheap">💚 Éco</span></div>
+        <span class="meal-arrow">▼</span>
+      </div>
+      <div class="meal-body">
+        <ul class="ingredients">
+          <li>130g poulet ou 3 œufs</li>
+          <li>100g riz</li>
+          <li>Légumes colorés variés (poivrons, brocoli)</li>
+          <li>Sauce légère au choix</li>
+        </ul>
+        <div class="prep-note">⚡ C'est ta séance la plus intense du cycle — la récupération post-séance est prioritaire aujourd'hui.</div>
+        <div class="macros-row">
+          <span class="macro-chip mc-p">~36g protéines</span>
+          <span class="macro-chip mc-c">~50g glucides</span>
+          <span class="macro-chip mc-f">~6g lipides</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Focus du jour</div>
+  <div class="tip-card">
+    <span class="tip-icon">💧</span>
+    <span class="tip-text"><strong>Hydratation maximale</strong> — vise 2.5–3L d'eau aujourd'hui. L'ovulation augmente légèrement la température corporelle. La déshydratation réduit les performances de 10–20%.</span>
+  </div>
+  <div class="tip-card">
+    <span class="tip-icon">🫐</span>
+    <span class="tip-text"><strong>Antioxydants en priorité</strong> — fruits rouges, légumes colorés, thé vert. Ils réduisent l'inflammation post-effort au pic de performance.</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ PHASE LUTÉALE ═══════════════════════════════ -->
+<div class="phase-content" id="phase-l">
+  <div class="phase-header ph-l">
+    <h2>🌸 Phase lutéale</h2>
+    <p>Corps en mode conservation. Légère résistance à l'insuline, besoins caloriques +100–200 kcal, envies de sucré normales. Mange malin.</p>
+    <div class="nutrients">
+      <span class="nutrient-tag">🌾 Glucides complexes</span>
+      <span class="nutrient-tag">🧲 Magnésium</span>
+      <span class="nutrient-tag">🐟 Oméga-3</span>
+      <span class="nutrient-tag">🌿 Anti-SPM</span>
+    </div>
+  </div>
+
+  <div class="section-title">Repas de la journée</div>
+  <div class="meals-grid">
+    <div class="meal-card" onclick="toggleMeal(this)">
+      <div class="meal-header">
+        <span class="meal-time">Matin</span>
+        <span class="meal-name">Porridge avoine + beurre de cacahuète</span>
+        <div class="meal-badges"><span class="badge badge-fast">⚡ 5 min</span><span class="badge badge-cheap">💚 Éco</span></div>
+        <span class="meal-arrow">▼</span>
+      </div>
+      <div class="meal-body">
+        <ul class="ingredients">
+          <li>70g flocons d'avoine</li>
+          <li>250ml lait</li>
+          <li>2 cs beurre de cacahuète (magnésium)</li>
+          <li>1 banane ou pomme</li>
+          <li>Cannelle (régule la glycémie)</li>
+        </ul>
+        <div class="prep-note">💡 L'avoine libère l'énergie lentement — parfait pour éviter les pics glycémiques en phase lutéale.</div>
+        <div class="macros-row">
+          <span class="macro-chip mc-p">~18g protéines</span>
+          <span class="macro-chip mc-c">~55g glucides</span>
+          <span class="macro-chip mc-f">~14g lipides</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="meal-card" onclick="toggleMeal(this)">
+      <div class="meal-header">
+        <span class="meal-time">Midi</span>
+        <span class="meal-name">Patate douce + protéine + légumes</span>
+        <div class="meal-badges"><span class="badge badge-cheap">💚 Éco</span><span class="badge badge-protein">💪 Protéines</span></div>
+        <span class="meal-arrow">▼</span>
+      </div>
+      <div class="meal-body">
+        <ul class="ingredients">
+          <li>1 grosse patate douce (four ou micro-ondes)</li>
+          <li>150g poulet, thon ou œufs</li>
+          <li>Légumes verts sautés</li>
+          <li>1 cs huile d'olive</li>
+        </ul>
+        <div class="prep-note">⚡ Patate douce > riz blanc ici. Indice glycémique plus bas, meilleure pour la résistance à l'insuline de la phase lutéale.</div>
+        <div class="macros-row">
+          <span class="macro-chip mc-p">~34g protéines</span>
+          <span class="macro-chip mc-c">~45g glucides</span>
+          <span class="macro-chip mc-f">~8g lipides</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="meal-card" onclick="toggleMeal(this)">
+      <div class="meal-header">
+        <span class="meal-time">Snack</span>
+        <span class="meal-name">Anti-fringale SPM</span>
+        <div class="meal-badges"><span class="badge badge-fast">⚡ 0 min</span><span class="badge badge-cheap">💚 Éco</span></div>
+        <span class="meal-arrow">▼</span>
+      </div>
+      <div class="meal-body">
+        <ul class="ingredients">
+          <li>2–3 carrés chocolat noir 70%+</li>
+          <li>1 poignée amandes ou noix de cajou</li>
+          <li>1 tisane gingembre-citron</li>
+        </ul>
+        <div class="prep-note">💡 Les envies de sucré en phase lutéale sont hormonales — pas un manque de volonté. Le chocolat noir + magnésium des noix les satisfait sans pic glycémique.</div>
+        <div class="macros-row">
+          <span class="macro-chip mc-p">~5g protéines</span>
+          <span class="macro-chip mc-c">~18g glucides</span>
+          <span class="macro-chip mc-f">~16g lipides</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="meal-card" onclick="toggleMeal(this)">
+      <div class="meal-header">
+        <span class="meal-time">Soir</span>
+        <span class="meal-name">Saumon + quinoa + légumes</span>
+        <div class="meal-badges"><span class="badge badge-fast">⚡ 20 min</span><span class="badge badge-protein">💪 Protéines</span></div>
+        <span class="meal-arrow">▼</span>
+      </div>
+      <div class="meal-body">
+        <ul class="ingredients">
+          <li>150g saumon surgelé</li>
+          <li>80g quinoa cuit</li>
+          <li>Légumes vapeur (brocoli, courgette)</li>
+          <li>Filet citron + herbes fraîches</li>
+        </ul>
+        <div class="prep-note">💡 Oméga-3 du saumon = anti-inflammatoire naturel qui réduit les symptômes du SPM. 2× par semaine minimum en phase lutéale.</div>
+        <div class="macros-row">
+          <span class="macro-chip mc-p">~38g protéines</span>
+          <span class="macro-chip mc-c">~30g glucides</span>
+          <span class="macro-chip mc-f">~14g lipides</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Conseils anti-SPM</div>
+  <div class="tip-card">
+    <span class="tip-icon">🚫</span>
+    <span class="tip-text"><strong>Réduis le sel</strong> — il aggrave la rétention d'eau et les ballonnements. Évite les plats transformés, chips, charcuterie en fin de phase.</span>
+  </div>
+  <div class="tip-card">
+    <span class="tip-icon">☕</span>
+    <span class="tip-text"><strong>Café avec modération</strong> — la caféine amplifie l'anxiété et les crampes en phase lutéale. Max 1–2 cafés/jour, de préférence le matin.</span>
+  </div>
+  <div class="tip-card">
+    <span class="tip-icon">🌿</span>
+    <span class="tip-text"><strong>Tisanes alliées</strong> — gingembre (anti-crampes), framboisier (tonique utérin), camomille (anti-stress). Remplacent avantageusement le café l'après-midi.</span>
+  </div>
+</div>
+
+<script>
+function switchTab(phase) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.phase-content').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.tab-${phase}`).classList.add('active');
+  document.getElementById(`phase-${phase}`).classList.add('active');
+}
+
+function toggleMeal(card) {
+  card.classList.toggle('open');
+}
+
+function toggleTheme() {
+  const isDark = document.body.classList.toggle('dark');
+  document.getElementById('themeBtn').textContent = isDark ? '☀️' : '🌙';
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+    document.getElementById('fsBtn').textContent = '✕';
+  } else {
+    document.exitFullscreen && document.exitFullscreen();
+    document.getElementById('fsBtn').textContent = '⛶';
+  }
+}
+
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement) document.getElementById('fsBtn').textContent = '⛶';
+});
+</script>
+</body>
+</html>
